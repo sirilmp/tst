@@ -97,7 +97,7 @@ const Home = _ => {
                         selectedFile ? <img
                             src={URL.createObjectURL(selectedFile)}
                             alt="Selected File"
-                            width="200"
+                            className='preview_image'
                         /> : <>
                             <BiSolidFileImage className='icon' />
                             <p className='text_1'>Drop your file here or Click to browse</p>
