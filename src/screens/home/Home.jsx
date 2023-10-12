@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import './styles.css'
 import { BiSolidFileImage } from 'react-icons/bi';
 import ReactJson from 'react-json-view';
+import axios from 'axios';
 
 
 const Home = _ => {
@@ -69,13 +70,39 @@ const Home = _ => {
     const handleClearData = _ => setSelectedFile(null)
 
     // handle cleare adata
-    const hamdleUpload = _ => {
+    const hamdleUpload = async _ => {
         setLoading(true)
-        setTimeout(() => {
-            setLoading(false)
+        // setTimeout(() => {
+        //     setLoading(false)
+        //     setJSONData(jsonData)
+        // }, 5000);
+        const result = await uploadImage()
+        setLoading(false)
+        if (result) {
             setJSONData(jsonData)
-        }, 5000);
+        } else {
+            setJSONData(null)
+        }
+    }
 
+    const uploadImage = async () => {
+        const formData = new FormData();
+
+        formData.append('_name_', selectedFile); //update the _name_
+
+        try {
+            const response = await axios({
+                method: "post",
+                url: "/api/upload", //update the url
+                data: formData,
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            console.log(response, 'response');
+            return true
+        } catch (error) {
+            console.log(error, 'error')
+            return false
+        }
     }
 
     return (
