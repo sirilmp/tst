@@ -186,7 +186,7 @@
     width: 100%;
     max-width: 20rem;
     max-height: 25rem;
-    min-height: 15rem;
+    min-height: auto;
     overflow: scroll;
     margin: 0.625rem;
     position: relative;

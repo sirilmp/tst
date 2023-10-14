@@ -7,34 +7,17 @@ import axios from 'axios';
 
 const Home = _ => {
 
+    const defaultJson = {
+    }
+
     const [selectedFile, setSelectedFile] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [loading, setLoading] = useState(false)
-    const [JSONData, setJSONData] = useState(null)
+    const [JSONData, setJSONData] = useState(defaultJson)
 
     const jsonData = {
-        "glossary": {
-            "title": "example glossary",
-            "GlossDiv": {
-                "title": "S",
-                "GlossList": {
-                    "GlossEntry": {
-                        "ID": "SGML",
-                        "SortAs": "SGML",
-                        "GlossTerm": "Standard Generalized Markup Language",
-                        "Acronym": "SGML",
-                        "Abbrev": "ISO 8879:1986",
-                        "GlossDef": {
-                            "para": "A meta-markup language, used to create markup languages such as DocBook.",
-                            "GlossSeeAlso": ["GML", "XML"]
-                        },
-                        "GlossSee": "markup"
-                    }
-                }
-            }
-        }
+        "image": "speed limit (30km/h)"
     }
-
     const hiddenFileInput = useRef(null);
 
     // Handle file selection
@@ -46,6 +29,7 @@ const Home = _ => {
     const handlechange = (e) => {
         const file = e.target.files[0];
         setSelectedFile(file);
+        setJSONData(defaultJson)
     }
 
     // Handle file drop
@@ -53,6 +37,7 @@ const Home = _ => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
         setSelectedFile(file);
+        setJSONData(defaultJson)
     };
 
     // Prevent the default behavior of the browser when a file is dropped
@@ -64,44 +49,52 @@ const Home = _ => {
     // Handle file drag leave
     const handleDragLeave = () => {
         setIsDragging(false);
+        setJSONData(defaultJson)
     };
 
     // handle cleare adata
-    const handleClearData = _ => setSelectedFile(null)
+    const handleClearData = _ => {
+        setSelectedFile(null)
+        setJSONData(defaultJson)
+    }
 
     // handle cleare adata
     const hamdleUpload = async _ => {
+        setJSONData(defaultJson)
         setLoading(true)
+
         // setTimeout(() => {
         //     setLoading(false)
         //     setJSONData(jsonData)
         // }, 5000);
+
         const result = await uploadImage()
         setLoading(false)
-        if (result) {
-            setJSONData(jsonData)
+        if (result[0]) {
+            setJSONData(result[1])
+
         } else {
-            setJSONData(null)
+            setJSONData(defaultJson)
         }
     }
 
     const uploadImage = async () => {
         const formData = new FormData();
 
-        formData.append('_name_', selectedFile); //update the _name_
+        formData.append('file', selectedFile); //update the _name_
 
         try {
             const response = await axios({
                 method: "post",
-                url: "/api/upload", //update the url
+                url: "http://127.0.0.1:8000/uploadfile/", //update the url
                 data: formData,
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            console.log(response, 'response');
-            return true
+            const result = response?.data
+            return [true, result]
         } catch (error) {
             console.log(error, 'error')
-            return false
+            return [false]
         }
     }
 
@@ -109,7 +102,7 @@ const Home = _ => {
         <div className='root'>
             <h1 className='page_title'>trafic signal traker</h1>
             {/* image upload container */}
-            {JSONData === null ? <div className='container'>
+            <div className='container'>
                 <h1 className='title_text'>
                     Upload your file
                 </h1>
@@ -153,19 +146,19 @@ const Home = _ => {
                 }
 
 
-            </div> :
-                <scroll className='response_container' >
+            </div>
+            <scroll className='response_container' >
 
-                    <ReactJson
-                        src={JSONData}
-                        theme='google'
-                        displayDataTypes={false} // Hide data types
-                        displayObjectSize={false} // Hide object size
-                        enableClipboard={false}
-                    />
-                </scroll>
-            }
+                <ReactJson
+                    src={JSONData}
+                    theme='google'
+                    displayDataTypes={false} // Hide data types
+                    displayObjectSize={false} // Hide object size
+                    enableClipboard={false}
+                />
+            </scroll>
         </div>
+
     )
 }
 
